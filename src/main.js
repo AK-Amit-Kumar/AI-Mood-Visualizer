@@ -20,6 +20,65 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 // document.documentElement.style.overflow = 'hidden';
 
+//MOOD PRESETS 
+const moodPresets = {
+  happy: {
+    color: new THREE.Color(0xffd700),
+    speed: 2.0,
+    spread: 0.4,
+    size: 0.06
+  },
+  sad: {
+    color: new THREE.Color(0x4a90d9),
+    speed: 0.4,
+    spread: 0.15,
+    size: 0.03
+  },
+  angry: {
+    color: new THREE.Color(0xff2200),
+    speed: 4.0,
+    spread: 0.6,
+    size: 0.08
+  },
+  calm: {
+    color: new THREE.Color(0x00c9a7),
+    speed: 0.6,
+    spread: 0.2,
+    size: 0.03
+  },
+  anxious: {
+    color: new THREE.Color(0xff6b6b),
+    speed: 3.0,
+    spread: 0.35,
+    size: 0.05
+  },
+  excited: {
+    color: new THREE.Color(0xbf5fff),
+    speed: 3.5,
+    spread: 0.5,
+    size: 0.06
+  }
+};
+
+//CURRENT STATE - LIVE VALUES THE PARTICLE SYSTEM USES RIGHT NOW
+const currentState = {
+  color: new THREE.Color(0x00c9a7),
+  speed: 0.6,
+  spread: 0.2,
+  size: 0.03
+};
+
+//TARGET STATE - PARTICLE WHERE IT IS TRYING TO GET 
+const targetState = {
+  color: new THREE.Color(0x00c9a7),
+  speed: 0.6,
+  spread: 0.2,
+  size: 0.03
+};
+
+// lerp (linear interpolation) speed
+const LERP_SPEED = 0.05;
+
 // ORBIT CONTROLS
 // three/examples/jsm is the correct path for this version of Three.js
 const controls = new OrbitControls(camera, renderer.domElement);
@@ -94,15 +153,29 @@ function animate() {
   // Dividing by 1000 converts ms to seconds
   const elapsedTime = (performance.now() - startTime) / 1000;
 
+  //Lerping current state toward target state
+  //LERP THE COLOR 
+  currentState.color.lerp(targetState.color, LERP_SPEED);
+
+  // LERP THE SPEED, SPREAD, SIZE
+  currentState.speed += (targetState.speed - currentState.speed) * LERP_SPEED;
+  currentState.spread += (targetState.spread - currentState.spread) * LERP_SPEED;
+  currentState.size += (targetState.size - currentState.size) * LERP_SPEED;
+
+  //Applying currentState size to material
+  material.color.copy(currentState.color);
+  material.size = currentState.size;
+  // material.needsUpdate = true;
+
   for (let i = 0; i < PARTICLE_COUNT; i++) {
     const index = i * 3;
 
     // Each particle gets a unique phase offset so they do not all move in sync
     const offset = index * 0.5;
 
-    positions[index] = originalPositions[index] + Math.sin(elapsedTime + offset) * 0.3;
-    positions[index + 1] = originalPositions[index + 1] + Math.cos(elapsedTime + offset) * 0.3;
-    positions[index + 2] = originalPositions[index + 2] + Math.sin(elapsedTime + offset * 0.5) * 0.3;
+    positions[index] = originalPositions[index] + Math.sin(elapsedTime * currentState.speed + offset) * currentState.spread;
+    positions[index + 1] = originalPositions[index + 1] + Math.cos(elapsedTime * currentState.speed + offset) * currentState.spread;
+    positions[index + 2] = originalPositions[index + 2] + Math.sin(elapsedTime * currentState.speed + offset * 0.5) * currentState.spread;
   }
 
   // Tell the GPU the position data changed this frame
@@ -121,4 +194,18 @@ window.addEventListener('resize', function () {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
+// MOOD SELECTOR
+const moodSelect = document.getElementById('moodSelect')
+
+moodSelect.addEventListener('change', function () {
+  const selectedMood = moodSelect.value;
+
+  const preset = moodPresets[selectedMood]
+
+  targetState.color.copy(preset.color);
+  targetState.speed = preset.speed;
+  targetState.spread = preset.spread;
+  targetState.size = preset.size;
 });
