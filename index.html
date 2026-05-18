@@ -10,14 +10,22 @@
 
 <body>
   <div id="ui">
-    <select id="moodSelect">
+    <!-- <select id="moodSelect">
       <option value="calm">Calm</option>
       <option value="happy">Happy</option>
       <option value="sad">Sad</option>
       <option value="angry">Angry</option>
       <option value="anxious">Anxious</option>
       <option value="excited">Excited</option>
-    </select>
+    </select> -->
+    <h1 id="title">AI Mood Visualizer</h1>
+
+    <textarea id="moodInput" placeholder="Type how are you feeling right now..." rows="3"></textarea>
+
+    <button id="submitBtn">Analyze my mood</button>
+    <p id="statusText"></p>
+
+    <p id="moodLabel"></p>
   </div>
   <script type="module" src="/src/main.js"></script>
 </body>

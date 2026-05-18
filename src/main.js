@@ -197,15 +197,102 @@ window.addEventListener('resize', function () {
 });
 
 // MOOD SELECTOR
-const moodSelect = document.getElementById('moodSelect')
+// const moodSelect = document.getElementById('moodSelect')
 
-moodSelect.addEventListener('change', function () {
-  const selectedMood = moodSelect.value;
+// moodSelect.addEventListener('change', function () {
+//   const selectedMood = moodSelect.value;
 
-  const preset = moodPresets[selectedMood]
+//   const preset = moodPresets[selectedMood]
+
+//   targetState.color.copy(preset.color);
+//   targetState.speed = preset.speed;
+//   targetState.spread = preset.spread;
+//   targetState.size = preset.size;
+// });
+
+//CONNECTING FRONTEND TO THE API - 
+//WIRING UP THE BUTTON TO CALL SERVERLESS FUNCTION AND TRIGGER THE MOOD TRANSITION
+
+const submitBtn = document.getElementById('submitBtn');
+const moodInput = document.getElementById('moodInput');
+const statusText = document.getElementById('statusText');
+const moodLabel = document.getElementById('moodLabel');
+
+// applyMood fucntion - input ( mood string, intensity number )
+// functionality of the func - updates targetState for lerp system to transistion the particles 
+
+function applyMood(mood, intensity) {
+  const preset = moodPresets[mood] || moodPresets['calm'];
 
   targetState.color.copy(preset.color);
-  targetState.speed = preset.speed;
-  targetState.spread = preset.spread;
-  targetState.size = preset.size;
+
+  targetState.speed = preset.speed * (0.5 + intensity * 0.5);
+  targetState.spread = preset.spread * (0.5 + intensity * 0.5);
+  targetState.size = preset.size
+
+  moodLabel.textContent = mood.toUpperCase();
+
+}
+
+//analyzeMood function - sends user text to serverless function
+// and then applies the returned mood to the particle system 
+
+async function analyzeMood() {
+  const text = moodInput.value.trim();
+
+  //Validation or Guard code
+  if (!text) {
+    statusText.textContent = 'Please type something first.';
+    return;
+  }
+
+  submitBtn.disabled = true;
+  statusText.textContent = 'Analyzing....';
+  moodLabel.textContent = '';
+
+  try {
+    const res = await fetch('/api/analyze', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ text })
+    });
+
+    //validation - guard code - if servreless func returned an error status
+    if (!res.ok) {
+      const errorData = await res.json();
+      statusText.textContent = 'Something went wrong. Try again.';
+      console.error('API error:', errorData);
+      return;
+    }
+
+    const data = await res.json();
+
+    applyMood(data.mood, data.intensity);
+
+    statusText.textContent = `Detected: ${data.mood} (intensity ${data.intensity.toFixed(2)})`;
+
+
+  } catch (error) {
+    statusText.textContent = 'Network error. Is vercel dev running?';
+    console.error('Fetch error:', error);
+
+  } finally {
+    submitBtn.disabled = false;
+
+  }
+
+}
+
+//listening the button click 
+submitBtn.addEventListener('click', analyzeMood);
+
+//triggering on Enter key - shift+enter for writing more in textarea in next line
+moodInput.addEventListener('keydown', function (e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    analyzeMood();
+  }
 });
+
