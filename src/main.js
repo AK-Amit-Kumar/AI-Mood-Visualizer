@@ -3,6 +3,9 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
 // SCENE
 const scene = new THREE.Scene();
+//adding fog effect
+scene.fog = new THREE.FogExp2(0x000000, 0.08);
+
 
 // CAMERA
 const camera = new THREE.PerspectiveCamera(
@@ -84,6 +87,10 @@ const LERP_SPEED = 0.05;
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 controls.dampingFactor = 0.05;
+
+// adding auto rotate feature
+controls.autoRotate = true;
+controls.autoRotateSpeed = 0.5;
 
 // PARTICLES
 const PARTICLE_COUNT = 2000;
@@ -230,7 +237,12 @@ function applyMood(mood, intensity) {
   targetState.spread = preset.spread * (0.5 + intensity * 0.5);
   targetState.size = preset.size
 
-  moodLabel.textContent = mood.toUpperCase();
+  // moodLabel.textContent = mood.toUpperCase();
+  moodLabel.style.opacity = '0';
+  setTimeout(function () {
+    moodLabel.textContent = mood.toUpperCase();
+    moodLabel.style.opacity = '1';
+  }, 400);
 
 }
 
