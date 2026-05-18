@@ -14,9 +14,7 @@
 
 ## Output
 
-![day5-output](aimoodvisualizer-day5.gif)
-
----
+## ![day5-output-final-deployment](<final-deply-aimood-app (1).gif>)
 
 ## What Was Built
 
