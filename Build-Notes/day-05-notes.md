@@ -12,10 +12,6 @@
 
 ---
 
-## Output
-
-## ![day5-output-final-deployment](<final-deply-aimood-app (1).gif>)
-
 ## What Was Built
 
 - FogExp2 added to Three.js scene for exponential depth effect
