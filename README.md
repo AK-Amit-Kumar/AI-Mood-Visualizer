@@ -2,8 +2,7 @@
 
 > Type how you feel. Watch the universe respond.
 
-
-
+<img width="1893" height="887" alt="compressed-gif-aimood-gif" src="https://github.com/user-attachments/assets/6b1f110d-56db-43a8-96ba-63b41542cf08" />
 
 ## Live Demo
 
